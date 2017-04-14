@@ -12,4 +12,9 @@ public class TopPipe extends GameObject
 		super(x, Config.TOP_PIPE_BASE_HEIGHT + y);
 		loadImage(Config.TOP_PIPE_PATH);
 	}
+	
+	public void setY(int y)
+	{
+		super.setY(Config.TOP_PIPE_BASE_HEIGHT + y);
+	}
 }

@@ -1,9 +1,13 @@
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.Timer;
@@ -16,6 +20,7 @@ public class Board extends JPanel implements ActionListener
 {
 	private static final int BOARD_X = 0;
 	private static final int BOARD_Y = 0;
+	private Dimension d = new Dimension(5, 5);
 
 	private Fish fish;
 	private TopPipe[] topPipe = new TopPipe[3];
@@ -23,52 +28,17 @@ public class Board extends JPanel implements ActionListener
 	private Image background;
 	private Random rando;
 	private Timer timer;
+	private FileWriter writer;
 
 	private boolean pressed;
 	private boolean paused;
 
 	private int score;
+	private int pipeSpeed;
 
 	public Board()
 	{
 		initialize();
-	}
-
-	private void initialize()
-	{
-		ImageIcon ii = new ImageIcon(Config.BOARD_PATH);
-		background = ii.getImage();
-		setPreferredSize(Config.DIMENSION);
-		setVisible(true);
-		initializeControls();
-		
-		rando = new Random();
-		score = 0;
-		pressed = false;
-		paused = false;
-
-		fish = new Fish(100, 0);
-		
-		topPipe[0] = new TopPipe(650, 0);
-		bottomPipe[0] = new BottomPipe(650, 0);
-		
-		int adj = pipeHeightAdjustment();
-		
-		topPipe[1] = new TopPipe(1000, adj);
-		bottomPipe[1] = new BottomPipe(1000, adj);
-		
-		adj = pipeHeightAdjustment();
-		
-		topPipe[2] = new TopPipe(1350, adj);
-		bottomPipe[2] = new BottomPipe(1350, adj);
-		
-		timer = new Timer(10, this);
-		timer.start();
-	}
-
-	private int pipeHeightAdjustment()
-	{
-		return (rando.nextInt(6) * 50) - 150;
 	}
 
 	@Override
@@ -81,6 +51,49 @@ public class Board extends JPanel implements ActionListener
 		Toolkit.getDefaultToolkit().sync();
 	}
 
+	private void initialize()
+	{
+		ImageIcon ii = new ImageIcon(Config.BOARD_PATH);
+		background = ii.getImage();
+		rando = new Random();
+		score = 0;
+		pipeSpeed = 2;
+		pressed = false;
+		paused = false;
+		
+		setPreferredSize(Config.DIMENSION);
+		setVisible(true);
+		
+		initializeControls();
+		initializePipes();
+
+		fish = new Fish(100, 0);
+		
+		timer = new Timer(10, this);
+		timer.start();
+	}
+
+	private int pipeHeightAdjustment()
+	{
+		return (rando.nextInt(6) * 50) - 150;
+	}
+	
+	private void initializePipes()
+	{
+		topPipe[0] = new TopPipe(650, 0);
+		bottomPipe[0] = new BottomPipe(650, 0);
+		
+		int adj = pipeHeightAdjustment();
+		
+		topPipe[1] = new TopPipe(1000, adj);
+		bottomPipe[1] = new BottomPipe(1000, adj);
+		
+		adj = pipeHeightAdjustment();
+		
+		topPipe[2] = new TopPipe(1350, adj);
+		bottomPipe[2] = new BottomPipe(1350, adj);
+	}
+	
 	private void doDrawing(Graphics g)
 	{
 		Graphics2D g2d = (Graphics2D) g;
@@ -112,25 +125,30 @@ public class Board extends JPanel implements ActionListener
 		{
 			if (bottomPipe[i].getX() <= -250)
 			{
-				bottomPipe[i].setX(800);
-				topPipe[i].setX(800);
-
 				int adj = pipeHeightAdjustment();
-				bottomPipe[i].setY(Config.BOTTOM_PIPE_BASE_HEIGHT + adj);
-				topPipe[i].setY(Config.TOP_PIPE_BASE_HEIGHT + adj);
+				
+				bottomPipe[i].setX(800);
+				bottomPipe[i].setY(adj);
+				
+				topPipe[i].setX(800);
+				topPipe[i].setY(adj);;
 				
 				score++;
 			}
 			else
 			{
-				bottomPipe[i].moveLeft();
-				topPipe[i].moveLeft();
+				for (int j = 0; j < pipeSpeed; j++)
+				{
+					bottomPipe[i].moveLeft();
+					topPipe[i].moveLeft();
+				}
 			}
 
-			if (fish.getBounds().intersects(bottomPipe[i].getBounds())
-					|| fish.getBounds().intersects(topPipe[i].getBounds()))
+			if (fish.getBounds().intersects(topPipe[i].getBounds())
+					|| fish.getBounds().intersects(bottomPipe[i].getBounds()))
 			{
 				fish.kill();
+				timer.stop();
 			}
 		}
 	}

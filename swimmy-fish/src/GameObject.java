@@ -67,7 +67,6 @@ public abstract class GameObject
 	public void moveLeft()
 	{
 		x--;
-		x--;
 	}
 
 	public void moveRight()
