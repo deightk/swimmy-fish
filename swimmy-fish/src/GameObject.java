@@ -1,3 +1,4 @@
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 
@@ -32,6 +33,11 @@ public abstract class GameObject
 		//set the object's height and width appropriately
 		height = sprite.getHeight(null);
 		width = sprite.getWidth(null);
+	}
+	
+	public void draw(Graphics g)
+	{
+		g.drawImage(sprite, x, y, null);
 	}
 
 	public Rectangle getBounds()

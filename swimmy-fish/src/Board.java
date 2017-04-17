@@ -1,4 +1,5 @@
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -26,7 +27,6 @@ public class Board extends JPanel
 
 	private boolean paused;
 
-	private int score;
 	private int pipeSpeed;
 	private int whirlpoolSpeed;
 
@@ -39,46 +39,57 @@ public class Board extends JPanel
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
+		drawComponents((Graphics2D) g);
+		Toolkit.getDefaultToolkit().sync();
+	}
+
+	private void drawComponents(Graphics2D g)
+	{
 		g.drawImage(background, BOARD_X, BOARD_Y, null); 
 
 		for (int i = 0; i < bottomPipe.length; i++)
 		{
-			g.drawImage(bottomPipe[i].getSprite(), bottomPipe[i].getX(), bottomPipe[i].getY(), this);
-			g.drawImage(topPipe[i].getSprite(), topPipe[i].getX(), topPipe[i].getY(), this);
+			bottomPipe[i].draw(g);
+			topPipe[i].draw(g);
 		}
-		
-		g.drawImage(fish.getSprite(), fish.getX(), fish.getY(), this);
-		
-		Toolkit.getDefaultToolkit().sync();
+
+		fish.draw(g);
 	}
 
 	private void initialize()
 	{
 		ImageIcon ii = new ImageIcon(Config.BOARD_PATH);
 		background = ii.getImage();
-		
+
 		rando = new Random();
-		
+
 		initializeControls();
 		newGame();
 	}
-	
+
 	private void initializeControls()
 	{
+		//swimming
 		getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "swimButton");
 		getActionMap().put("swimButton", new SwimAction());
 		getInputMap().put(KeyStroke.getKeyStroke("released SPACE"), "swimRelease");
 		getActionMap().put("swimRelease", new NeutralAction());
+		//diving
+		getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "diveButton");
+		getActionMap().put("diveButton", new DiveAction());
+		getInputMap().put(KeyStroke.getKeyStroke("released DOWN"), "diveRelease");
+		getActionMap().put("diveRelease", new NeutralAction());
+		//reset
 		getInputMap().put(KeyStroke.getKeyStroke("R"), "resetButton");
 		getActionMap().put("resetButton", new ResetAction());
+		//pause
 		getInputMap().put(KeyStroke.getKeyStroke("P"), "pauseButton");
 		getActionMap().put("pauseButton", new PauseAction());
 	}
-	
+
 	private void newGame()
 	{
 		initializePipes();
-		score = 0;
 		pipeSpeed = 3;
 		whirlpoolSpeed = 3;
 		paused = false;
@@ -86,7 +97,7 @@ public class Board extends JPanel
 		timer = new Timer();
 		timer.schedule(new GameLoop(), 12, 12);
 	}
-	
+
 	private void initializePipes()
 	{
 		topPipe[0] = new TopPipe(Config.FIRST_PIPE_XLOC, 0);
@@ -111,12 +122,12 @@ public class Board extends JPanel
 	private void gameLogic()
 	{
 		fish.move();
-		
+
 		for (int i = 0; i < whirlpoolSpeed; i++)
 		{
 			fish.moveDown();
 		}
-		
+
 		for (int i = 0; i < bottomPipe.length; i++)
 		{
 			if (bottomPipe[i].getX() < -249)
@@ -128,8 +139,6 @@ public class Board extends JPanel
 
 				topPipe[i].setX(800);
 				topPipe[i].setY(adj);
-
-				score++;
 			}
 			else
 			{
@@ -141,10 +150,15 @@ public class Board extends JPanel
 			}
 
 			if (fish.getBounds().intersects(topPipe[i].getBounds())
-					|| fish.getBounds().intersects(bottomPipe[i].getBounds()))
+					|| fish.getBounds().intersects(bottomPipe[i].getBounds())
+					|| fish.getY() > Config.VERTICAL_RES)
 			{
 				fish.kill();
 				timer.cancel();
+			}
+			else
+			{
+				fish.score();
 			}
 		}
 	}
@@ -153,22 +167,18 @@ public class Board extends JPanel
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			//if (!pressed)
 			{
 				fish.swim();
-				//pressed = true;
 			}
 		}
 	}
-	
+
 	private class NeutralAction extends AbstractAction
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			//if (!pressed)
 			{
 				fish.neutral();
-				//pressed = true;
 			}
 		}
 	}
@@ -178,7 +188,6 @@ public class Board extends JPanel
 		public void actionPerformed(ActionEvent e)
 		{
 			fish.dive();
-			//pressed = false;
 		}
 	} 
 
@@ -212,9 +221,8 @@ public class Board extends JPanel
 	{
 		public void run()
 		{
-				gameLogic();
-				repaint();
+			gameLogic();
+			repaint();
 		}
 	}
-
 }

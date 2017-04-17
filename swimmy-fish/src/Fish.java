@@ -1,20 +1,22 @@
+import java.awt.Graphics;
+
 public class Fish extends GameObject
 {
 	private static final String path = Config.RESOURCE_PATH + "fish.png";
 	private int dx;
 	private int dy;
+	private int score;
 	private boolean dead;
 	
 	public Fish()
 	{
-		super();
-		dead = false;
-		loadImage(path);
+		new Fish(0, 0);
 	}
-	
+
 	public Fish(int x, int y)
 	{
 		super(x, y);
+		score = 0;
 		dead = false;
 		loadImage(path);
 	}
@@ -22,10 +24,14 @@ public class Fish extends GameObject
 	public void move()
 	{
 		x += dx;
-		
-		if (((y + dy) > 0) && ((y + dy) < (Config.VERTICAL_RES - height)))
+		y += dy;
+	}
+	
+	public void draw(Graphics g)
+	{
+		if (!dead)
 		{
-			y += dy;
+			super.draw(g);
 		}
 	}
 
@@ -44,13 +50,28 @@ public class Fish extends GameObject
     	dy = 6;
     }
     
+    public void kill()
+    {
+    	dead = true;
+    }
+    
     public boolean isDead()
     {
     	return dead;
     }
     
-    public void kill()
+    public void setScore(int score)
     {
-    	dead = true;
+    	this.score = score;
+    }
+    
+    public int getScore()
+    {
+    	return score;
+    }
+    
+    public void score()
+    {
+    	score++;
     }
 }

@@ -6,8 +6,8 @@ public class Config
 	public final static int VERTICAL_RES = 600;
 	public final static Dimension DIMENSION = new Dimension(HORIZONTAL_RES, VERTICAL_RES);
 	
-	public final static int TOP_PIPE_BASE_HEIGHT = -375;
-	public final static int BOTTOM_PIPE_BASE_HEIGHT = 375;
+	public final static int TOP_PIPE_BASE_HEIGHT = -385;
+	public final static int BOTTOM_PIPE_BASE_HEIGHT = 385;
 	
 	public final static int FIRST_PIPE_XLOC = 650;
 	public final static int SECOND_PIPE_XLOC = 1000;
