@@ -9,6 +9,10 @@ public class Config
 	public final static int TOP_PIPE_BASE_HEIGHT = -375;
 	public final static int BOTTOM_PIPE_BASE_HEIGHT = 375;
 	
+	public final static int FIRST_PIPE_XLOC = 650;
+	public final static int SECOND_PIPE_XLOC = 1000;
+	public final static int THIRD_PIPE_XLOC = 1350;
+	
 	public final static String RESOURCE_PATH = "src/images/";
 	public final static String FISH_PATH = RESOURCE_PATH + "fish.png";
 	public final static String BOARD_PATH = RESOURCE_PATH + "ocean.png";

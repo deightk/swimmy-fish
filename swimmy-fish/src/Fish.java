@@ -31,17 +31,22 @@ public class Fish extends GameObject
 
 	public void swim()
 	{
-		dy = -6;
+		dy = -9;
 	}
 
-    public void fall()
+    public void neutral()
     {
         dy = 0;
     }
     
-    public boolean isAlive()
+    public void dive()
     {
-    	return !dead;
+    	dy = 6;
+    }
+    
+    public boolean isDead()
+    {
+    	return dead;
     }
     
     public void kill()
