@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 public class Application extends JFrame implements ActionListener
 {
 	private final static String TITLE= "Swimmy Fish";
-	private Board board = new Board();
+	private Board board = new ManualBoard();
 
     public Application()
     {

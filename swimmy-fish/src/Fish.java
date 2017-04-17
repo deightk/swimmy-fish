@@ -1,16 +1,20 @@
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.KeyStroke;
 
 public class Fish extends GameObject
 {
 	private static final String path = Config.RESOURCE_PATH + "fish.png";
 	private int dx;
-	private int dy;
+	private int dy = 3;
 	private int score;
 	private boolean dead;
 	
 	public Fish()
 	{
-		new Fish(0, 0);
+		new Fish(Config.FISH_START_XLOC, Config.FISH_START_YLOC);
 	}
 
 	public Fish(int x, int y)
@@ -37,12 +41,12 @@ public class Fish extends GameObject
 
 	public void swim()
 	{
-		dy = -9;
+		dy = -6;
 	}
 
     public void neutral()
     {
-        dy = 0;
+        dy = 3;
     }
     
     public void dive()
@@ -74,4 +78,32 @@ public class Fish extends GameObject
     {
     	score++;
     }
+    
+	private class SwimAction extends AbstractAction
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			{
+				swim();
+			}
+		}
+	}
+
+	private class NeutralAction extends AbstractAction
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			{
+				neutral();
+			}
+		}
+	}
+
+	private class DiveAction extends AbstractAction
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			dive();
+		}
+	} 
 }

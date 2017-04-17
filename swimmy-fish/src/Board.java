@@ -3,7 +3,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,20 +15,20 @@ import javax.swing.KeyStroke;
 
 public class Board extends JPanel
 {
-	private static final int BOARD_X = 0;
-	private static final int BOARD_Y = 0;
+	protected static final int BOARD_X = 0;
+	protected static final int BOARD_Y = 0;
 
-	private Fish fish;
-	private TopPipe[] topPipe = new TopPipe[3];
-	private BottomPipe[] bottomPipe = new BottomPipe[3];
-	private Image background;
-	private Random rando;
-	private Timer timer;
+	protected ArrayList<Fish> fish;
+	protected TopPipe[] topPipe = new TopPipe[3];
+	protected BottomPipe[] bottomPipe = new BottomPipe[3];
+	protected Image background;
+	protected Random rando;
+	protected Timer timer;
 
-	private boolean paused;
+	protected boolean paused;
 
-	private int pipeSpeed;
-	private int whirlpoolSpeed;
+	protected int pipeSpeed;
+	protected int whirlpoolSpeed;
 
 	public Board()
 	{
@@ -43,7 +43,7 @@ public class Board extends JPanel
 		Toolkit.getDefaultToolkit().sync();
 	}
 
-	private void drawComponents(Graphics2D g)
+	protected void drawComponents(Graphics2D g)
 	{
 		g.drawImage(background, BOARD_X, BOARD_Y, null); 
 
@@ -53,52 +53,51 @@ public class Board extends JPanel
 			topPipe[i].draw(g);
 		}
 
-		fish.draw(g);
+		for (int i = 0; i < fish.size(); i++)
+		{
+			if (fish.get(i).isDead())
+			{
+				fish.remove(i);
+			}
+			else
+			{
+				fish.get(i).draw(g);
+			}
+		}
 	}
 
-	private void initialize()
+	protected void initialize()
 	{
 		ImageIcon ii = new ImageIcon(Config.BOARD_PATH);
 		background = ii.getImage();
 
 		rando = new Random();
 
-		initializeControls();
 		newGame();
 	}
 
-	private void initializeControls()
-	{
-		//swimming
-		getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "swimButton");
-		getActionMap().put("swimButton", new SwimAction());
-		getInputMap().put(KeyStroke.getKeyStroke("released SPACE"), "swimRelease");
-		getActionMap().put("swimRelease", new NeutralAction());
-		//diving
-		getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "diveButton");
-		getActionMap().put("diveButton", new DiveAction());
-		getInputMap().put(KeyStroke.getKeyStroke("released DOWN"), "diveRelease");
-		getActionMap().put("diveRelease", new NeutralAction());
-		//reset
-		getInputMap().put(KeyStroke.getKeyStroke("R"), "resetButton");
-		getActionMap().put("resetButton", new ResetAction());
-		//pause
-		getInputMap().put(KeyStroke.getKeyStroke("P"), "pauseButton");
-		getActionMap().put("pauseButton", new PauseAction());
-	}
-
-	private void newGame()
+	protected void newGame()
 	{
 		initializePipes();
 		pipeSpeed = 3;
 		whirlpoolSpeed = 3;
 		paused = false;
-		fish = new Fish(100, 0);
+		fish = new ArrayList<Fish>();
+		populate();
+
 		timer = new Timer();
 		timer.schedule(new GameLoop(), 12, 12);
 	}
 
-	private void initializePipes()
+	protected void populate()
+	{
+		for (int i = 0; i < 100; i++)
+		{
+			fish.add(new Fish());
+		}
+	}
+
+	protected void initializePipes()
 	{
 		topPipe[0] = new TopPipe(Config.FIRST_PIPE_XLOC, 0);
 		bottomPipe[0] = new BottomPipe(Config.FIRST_PIPE_XLOC, 0);
@@ -114,18 +113,16 @@ public class Board extends JPanel
 		bottomPipe[2] = new BottomPipe(Config.THIRD_PIPE_XLOC, adj);
 	}
 
-	private int pipeHeightAdjustment()
+	protected int pipeHeightAdjustment()
 	{
 		return (rando.nextInt(6) * 50) - 150;
 	}
 
-	private void gameLogic()
+	protected void gameLogic()
 	{
-		fish.move();
-
-		for (int i = 0; i < whirlpoolSpeed; i++)
+		for (Fish f : fish)
 		{
-			fish.moveDown();
+			f.move();
 		}
 
 		for (int i = 0; i < bottomPipe.length; i++)
@@ -149,75 +146,24 @@ public class Board extends JPanel
 				}
 			}
 
-			if (fish.getBounds().intersects(topPipe[i].getBounds())
-					|| fish.getBounds().intersects(bottomPipe[i].getBounds())
-					|| fish.getY() > Config.VERTICAL_RES)
+			for (Fish f : fish)
 			{
-				fish.kill();
-				timer.cancel();
+				if (f.getBounds().intersects(topPipe[i].getBounds())
+						|| f.getBounds().intersects(bottomPipe[i].getBounds())
+						|| f.getY() > Config.VERTICAL_RES)
+				{
+					f.kill();
+					timer.cancel();
+				}
+				else
+				{
+					f.score();
+				}
 			}
-			else
-			{
-				fish.score();
-			}
-		}
-	}
-
-	private class SwimAction extends AbstractAction
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			{
-				fish.swim();
-			}
-		}
-	}
-
-	private class NeutralAction extends AbstractAction
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			{
-				fish.neutral();
-			}
-		}
-	}
-
-	private class DiveAction extends AbstractAction
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			fish.dive();
 		}
 	} 
 
-	private class ResetAction extends AbstractAction
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			timer.cancel();
-			newGame();
-		}
-	}
-
-	private class PauseAction extends AbstractAction
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			if (!paused)
-			{
-				timer.cancel();
-			}
-			else
-			{
-				timer = new Timer();
-				timer.schedule(new GameLoop(), 12, 12);
-			}
-			paused = !paused;
-		}
-	}
-
-	private class GameLoop extends TimerTask
+	protected class GameLoop extends TimerTask
 	{
 		public void run()
 		{

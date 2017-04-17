@@ -6,6 +6,9 @@ public class Config
 	public final static int VERTICAL_RES = 600;
 	public final static Dimension DIMENSION = new Dimension(HORIZONTAL_RES, VERTICAL_RES);
 	
+	public final static int FISH_START_XLOC = 100;
+	public final static int FISH_START_YLOC = 0;
+	
 	public final static int TOP_PIPE_BASE_HEIGHT = -385;
 	public final static int BOTTOM_PIPE_BASE_HEIGHT = 385;
 	
