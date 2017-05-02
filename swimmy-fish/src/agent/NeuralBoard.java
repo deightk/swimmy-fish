@@ -25,21 +25,20 @@ public class NeuralBoard extends Board
 	public NeuralBoard()
 	{
 		Neat.initbase();
-		Neat.readParam("parametri");
 
 		neatPop = new Population
 				(
-						25, 		/* population size */ 
-						3, 		/* network inputs */ 
-						1, 		/* network outputs */
+						50, 		/* population size */ 
+						3, 			/* network inputs */ 
+						1, 			/* network outputs */
 						10, 		/* max index of nodes */
-						true, 	/* recurrent */
-						0.5 	/* probability of connecting two nodes */
+						true, 		/* recurrent */
+						0.5 		/* probability of connecting two nodes */
 				);
 		
 		orgs = neatPop.getOrganisms();
 		generation = 0;
-		gameSpeed = 2;
+		gameSpeed = 5;
 		
 		loadFromFile();
 		initialize();
@@ -60,13 +59,15 @@ public class NeuralBoard extends Board
 			System.out.print("Enter generation number: ");
 			generation = scan.nextInt();
 		}
+		
+		Neat.readParam("parametri");
 	}
 
 	protected void populate()
 	{
 		fish = new ArrayList<Fish>(25);
 
-		for (int i = 0; i < 25; i++)
+		for (int i = 0; i < 50; i++)
 		{
 			fish.add(new Fish());
 		}
@@ -143,7 +144,7 @@ public class NeuralBoard extends Board
 			
 			((Organism)orgs.get(i)).setFitness(score);
 			
-			if (score > 0)
+			if (score > 2500)
 			{
 				((Organism)orgs.get(i)).setWinner(true);
 			}
@@ -167,6 +168,7 @@ public class NeuralBoard extends Board
 					max = o.getFitness();
 					index = j;
 				}
+				
 			}
 			
 			((Organism)s.getOrganisms().elementAt(index)).setChampion(true);

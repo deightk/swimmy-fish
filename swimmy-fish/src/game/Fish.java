@@ -8,8 +8,6 @@ import javax.swing.KeyStroke;
 public class Fish extends GameObject
 {
 	protected static final String path = Config.RESOURCE_PATH + "fish.png";
-	protected int dx;
-	protected int dy = 3;
 	protected int score;
 	protected boolean dead;
 
@@ -21,23 +19,10 @@ public class Fish extends GameObject
 	public Fish(int x, int y)
 	{
 		super(x, y);
+		dy = 3;
 		score = 0;
 		dead = false;
 		loadImage(path);
-	}
-
-	public void move()
-	{
-		x += dx;
-		y += dy;
-	}
-
-	public void draw(Graphics g)
-	{
-		if (!dead)
-		{
-			super.draw(g);
-		}
 	}
 
 	public void swim()
@@ -58,7 +43,7 @@ public class Fish extends GameObject
 	public void kill()
 	{
 		dead = true;
-		
+		//used to weed out especially poor scorers
 		if (score < -750)
 		{
 			score = -10000;
@@ -82,22 +67,16 @@ public class Fish extends GameObject
 
 	public void score()
 	{
-		if (!dead)
-		{
-			score++;
-		}
-	}
-	
-	public void bigScore()
-	{
 		score += 20;
 	}
 	
 	public void penalize()
 	{
-		score -= 5;
+		score -= 10;
 	}
 
+	//for external invoking from an ActionListener
+	
 	private class SwimAction extends AbstractAction
 	{
 		public void actionPerformed(ActionEvent e)

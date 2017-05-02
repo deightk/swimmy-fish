@@ -33,7 +33,6 @@ public abstract class Board extends JPanel
 	protected int gameSpeed = Config.TIMER_INT;
 
 	protected boolean paused;
-	protected boolean gameOver;
 
 	protected int pipeSpeed;
 	protected int closestPipeIndex;
@@ -113,7 +112,6 @@ public abstract class Board extends JPanel
 		closestPipeIndex = 0;
 
 		paused = false;
-		gameOver = false;
 
 		populate();
 
@@ -154,12 +152,7 @@ public abstract class Board extends JPanel
 
 	protected int pipeHeightAdjustment()
 	{
-		return (rando.nextInt(4) * 75) - 150;
-	}
-
-	protected int fishHeightAdjustment()
-	{
-		return (rando.nextInt(10) * 30) - 150;
+		return (rando.nextInt(6) * 50) - 150;
 	}
 
 	protected void gameLogic()
@@ -171,8 +164,6 @@ public abstract class Board extends JPanel
 		if (fish.size() == 0)
 		{
 			timer.cancel();
-			gameOver = true;
-			return;
 		}
 	}
 
@@ -184,42 +175,49 @@ public abstract class Board extends JPanel
 	{
 		for (Fish f : fish)
 		{
-			if (f.isDead())
+			
+			if (f.isDead()) //skip this iteration if the fish is dead
 			{
 				continue;
 			}
 			
-			if (f.getBounds().intersects(getClosestTopPipe().getBounds())
-					|| f.getBounds().intersects(getClosestBottomPipe().getBounds())
-					|| f.getY() > Config.VERTICAL_RES
-					|| f.getY() < -25)
+			if (f.getScore() > 2500)
 			{
 				f.kill();
 			}
 			
-			if (f.isDead())
+			if 	(   //kill the fish if it goes out of bounds or touches a pipe
+					f.collides(getClosestTopPipe())
+					|| f.collides(getClosestBottomPipe())
+					|| f.getY() > Config.VERTICAL_RES
+					|| f.getY() < -25
+				)
+			{
+				f.kill();
+			}
+			
+			if (f.isDead()) //skip if the fish was just killed
 			{
 				continue;
 			}
 
-			f.move();
-			//f.score();
+			f.move(); //move the fish according to its current action
 
-			if (f.getX() > getClosestTopPipe().getX())
+			if (f.getX() > getClosestTopPipe().getX()) 
 			{
-				f.bigScore();
+				f.score();	//grant the fish points for passing through a pipe
 			}
 
-			if (f.getY() > getClosestBottomPipe().getY() - 40
+			if (f.getY() > getClosestBottomPipe().getY() - 60
 					&& f.getY() < getClosestBottomPipe().getY() - 20)
 			{
-				f.bigScore();
+				f.score();	//grant the fish points for being in range to pass the pipe
 			}
 
 			if (f.getY() < getClosestBottomPipe().getY() - 70
 					|| f.getY() > getClosestBottomPipe().getY())
 			{
-				f.penalize();
+				f.penalize();	//penalize the fish for being on a collision course
 			}
 		}
 	}
@@ -228,12 +226,14 @@ public abstract class Board extends JPanel
 	{
 		for (int i = 0; i < bottomPipe.length; i++)
 		{
-
-			if (bottomPipe[i].getX() < 50)
+			if (getClosestTopPipe().getX() < -25)
 			{
+				//change the "closest" pipe to the next pipe in the sequence
 				closestPipeIndex = (closestPipeIndex + 1) % 3;
 			}
-
+				// if the pipe has traveled far enough off-screen to the left,
+				// reposition it at the right of the screen to begin anew
+			
 			if (bottomPipe[i].getX() < -400)
 			{
 				int adj = pipeHeightAdjustment();

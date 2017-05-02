@@ -9,21 +9,20 @@ public abstract class GameObject
 {
 	protected int x;
 	protected int y;
+	protected int dx;
+	protected int dy;
 	protected int height;
 	protected int width;
-	protected boolean visible;
 	protected Image sprite;
 
 	public GameObject()
 	{
-		visible = true;
 	}
 
 	public GameObject(int x, int y)
 	{
 		this.x = x;
 		this.y = y;
-		visible = true;
 	}
 
 	public void loadImage(String filename)
@@ -41,9 +40,15 @@ public abstract class GameObject
 		g.drawImage(sprite, x, y, null);
 	}
 
+	//used for collision detection
 	public Rectangle getBounds()
 	{
 		return new Rectangle(x, y, width, height);
+	}
+	
+	public boolean collides(GameObject go)
+	{
+		return this.getBounds().intersects(go.getBounds());
 	}
 
 	public Image getSprite()
@@ -71,6 +76,12 @@ public abstract class GameObject
 		this.y = y;
 	}
 
+	public void move()
+	{
+		x += dx;
+		y += dy;
+	}
+	
 	public void moveLeft()
 	{
 		x--;
@@ -90,6 +101,4 @@ public abstract class GameObject
 	{
 		y++;
 	}
-
 }
-
