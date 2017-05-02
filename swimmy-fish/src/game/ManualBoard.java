@@ -1,4 +1,6 @@
+package game;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Timer;
 
 import javax.swing.AbstractAction;
@@ -35,6 +37,7 @@ public class ManualBoard extends Board
 	
 	protected void populate()
 	{
+		fish = new ArrayList<Fish>();
 		fish.add(new Fish());
 	}
 	
@@ -81,23 +84,6 @@ public class ManualBoard extends Board
 		{
 			timer.cancel();
 			newGame();
-		}
-	}
-
-	protected class PauseAction extends AbstractAction
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			if (!paused)
-			{
-				timer.cancel();
-			}
-			else
-			{
-				timer = new Timer();
-				timer.schedule(new GameLoop(), 12, 12);
-			}
-			paused = !paused;
 		}
 	}
 }

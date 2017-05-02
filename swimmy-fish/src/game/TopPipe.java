@@ -1,3 +1,4 @@
+package game;
 public class TopPipe extends GameObject
 {
 	public TopPipe()
