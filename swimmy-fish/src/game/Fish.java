@@ -64,15 +64,15 @@ public class Fish extends GameObject
 	{
 		return score;
 	}
-
+	
 	public void score()
 	{
-		score += 20;
+		score += 15;
 	}
 	
 	public void penalize()
 	{
-		score -= 10;
+		score -= 1;
 	}
 
 	//for external invoking from an ActionListener

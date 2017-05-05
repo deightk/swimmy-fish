@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import game.Board.GameLoop;
+import game.Board.PauseAction;
 
 public abstract class Board extends JPanel
 {
@@ -34,6 +35,7 @@ public abstract class Board extends JPanel
 
 	protected boolean paused;
 
+	protected int numPipes;
 	protected int pipeSpeed;
 	protected int closestPipeIndex;
 
@@ -41,30 +43,7 @@ public abstract class Board extends JPanel
 	{
 		initialize();
 	}
-
-	@Override
-	public void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-		drawComponents((Graphics2D) g);
-		Toolkit.getDefaultToolkit().sync();
-	}
-
-	public Fish getFish(int i)
-	{
-		return fish.get(i);
-	}
-
-	public TopPipe[] getTopPipes()
-	{
-		return topPipe;
-	}
-
-	public BottomPipe[] getBottomPipes()
-	{
-		return bottomPipe;
-	}
-
+	
 	public BottomPipe getClosestBottomPipe()
 	{
 		return bottomPipe[closestPipeIndex];
@@ -73,6 +52,14 @@ public abstract class Board extends JPanel
 	public TopPipe getClosestTopPipe()
 	{
 		return topPipe[closestPipeIndex];
+	}
+
+	@Override
+	public void paintComponent(Graphics g)
+	{
+		super.paintComponent(g);
+		drawComponents((Graphics2D) g);
+		Toolkit.getDefaultToolkit().sync();
 	}
 
 	protected void drawComponents(Graphics2D g)
@@ -100,16 +87,28 @@ public abstract class Board extends JPanel
 		background = ii.getImage();
 
 		rando = new Random();
-
+		
+		initializeControls();
 		newGame();
+	}
+	
+	protected void initializeControls()
+	{
+		//reset
+		getInputMap().put(KeyStroke.getKeyStroke("R"), "resetButton");
+		getActionMap().put("resetButton", new ResetAction());
+		//pause
+		getInputMap().put(KeyStroke.getKeyStroke("P"), "pauseButton");
+		getActionMap().put("pauseButton", new PauseAction());
 	}
 
 	protected void newGame()
 	{
 		initializePipes();
 
-		pipeSpeed = 3;
+		pipeSpeed = 5;
 		closestPipeIndex = 0;
+		numPipes = 3;
 
 		paused = false;
 
@@ -118,28 +117,14 @@ public abstract class Board extends JPanel
 		initializeTimer();
 	}
 
-	protected void initializeTimer()
-	{
-		timer = new Timer();
-		timer.schedule(new GameLoop(), gameSpeed, gameSpeed);
-	}
-
-	protected void populate()
-	{
-		fish = new ArrayList<Fish>();
-
-		for (int i = 0; i < 10; i++)
-		{
-			fish.add(new Fish());
-		}
-	}
-
 	protected void initializePipes()
 	{
-		topPipe[0] = new TopPipe(Config.FIRST_PIPE_XLOC, 0);
-		bottomPipe[0] = new BottomPipe(Config.FIRST_PIPE_XLOC, 0);
-
 		int adj = pipeHeightAdjustment();
+		
+		topPipe[0] = new TopPipe(Config.FIRST_PIPE_XLOC, adj);
+		bottomPipe[0] = new BottomPipe(Config.FIRST_PIPE_XLOC, adj);
+
+		adj = pipeHeightAdjustment();
 
 		topPipe[1] = new TopPipe(Config.SECOND_PIPE_XLOC, adj);
 		bottomPipe[1] = new BottomPipe(Config.SECOND_PIPE_XLOC, adj);
@@ -152,7 +137,23 @@ public abstract class Board extends JPanel
 
 	protected int pipeHeightAdjustment()
 	{
-		return (rando.nextInt(6) * 50) - 150;
+		return (rando.nextInt(20) * 15) - 150;
+	}
+
+	protected void populate()
+	{
+		fish = new ArrayList<Fish>();
+
+		for (int i = 0; i < 10; i++)
+		{
+			fish.add(new Fish());
+		}
+	}
+
+	protected void initializeTimer()
+	{
+		timer = new Timer();
+		timer.schedule(new GameLoop(), gameSpeed, gameSpeed);
 	}
 
 	protected void gameLogic()
@@ -181,12 +182,7 @@ public abstract class Board extends JPanel
 				continue;
 			}
 			
-			if (f.getScore() > 2500)
-			{
-				f.kill();
-			}
-			
-			if 	(   //kill the fish if it goes out of bounds or touches a pipe
+			if 	(   //kill the fish if it goes out of bounds, touches a pipe
 					f.collides(getClosestTopPipe())
 					|| f.collides(getClosestBottomPipe())
 					|| f.getY() > Config.VERTICAL_RES
@@ -208,14 +204,9 @@ public abstract class Board extends JPanel
 				f.score();	//grant the fish points for passing through a pipe
 			}
 
-			if (f.getY() > getClosestBottomPipe().getY() - 60
-					&& f.getY() < getClosestBottomPipe().getY() - 20)
-			{
-				f.score();	//grant the fish points for being in range to pass the pipe
-			}
-
-			if (f.getY() < getClosestBottomPipe().getY() - 70
-					|| f.getY() > getClosestBottomPipe().getY())
+			if (	f.getX() > getClosestTopPipe().getX() - 225
+					&& (f.getY() < getClosestTopPipe().getBottomY()
+					|| (f.getBottomY()) > getClosestBottomPipe().getY())) //
 			{
 				f.penalize();	//penalize the fish for being on a collision course
 			}
@@ -226,10 +217,19 @@ public abstract class Board extends JPanel
 	{
 		for (int i = 0; i < bottomPipe.length; i++)
 		{
+			if (numPipes > Config.MAX_PIPES)
+			{
+				for (Fish f : fish)
+				{
+					f.kill();
+				}
+			}
+			
 			if (getClosestTopPipe().getX() < -25)
 			{
 				//change the "closest" pipe to the next pipe in the sequence
 				closestPipeIndex = (closestPipeIndex + 1) % 3;
+				numPipes++;
 			}
 				// if the pipe has traveled far enough off-screen to the left,
 				// reposition it at the right of the screen to begin anew
@@ -275,9 +275,18 @@ public abstract class Board extends JPanel
 			else
 			{
 				timer = new Timer();
-				timer.schedule(new GameLoop(), 12, 12);
+				timer.schedule(new GameLoop(), gameSpeed, gameSpeed);
 			}
 			paused = !paused;
+		}
+	}
+	
+	protected class ResetAction extends AbstractAction
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			timer.cancel();
+			newGame();
 		}
 	}
 	

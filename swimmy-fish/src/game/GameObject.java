@@ -60,10 +60,30 @@ public abstract class GameObject
 	{
 		return x;
 	}
+	
+	public int getRightX()
+	{
+		return x + width;
+	}
 
 	public int getY()
 	{
 		return y;
+	}
+	
+	public int getBottomY()
+	{
+		return y + height;
+	}
+	
+	public int getHeight()
+	{
+		return height;
+	}
+	
+	public int getWidth()
+	{
+		return width;
 	}
 
 	public void setX(int x)

@@ -17,8 +17,8 @@ public class Config
 	public final static int FISH_DIVE_RATE = 6;
 	public final static int FISH_NEUT_RATE = 3;
 	
-	public final static int TOP_PIPE_BASE_HEIGHT = -400;
-	public final static int BOTTOM_PIPE_BASE_HEIGHT = 400;
+	public final static int TOP_PIPE_BASE_HEIGHT = -390;
+	public final static int BOTTOM_PIPE_BASE_HEIGHT = 390;
 	
 	public final static int FIRST_PIPE_XLOC = 650;
 	public final static int SECOND_PIPE_XLOC = 1050;
@@ -29,4 +29,7 @@ public class Config
 	public final static String BOARD_PATH = RESOURCE_PATH + "ocean.png";
 	public final static String TOP_PIPE_PATH = RESOURCE_PATH + "topPipe.png";
 	public final static String BOTTOM_PIPE_PATH = RESOURCE_PATH + "bottomPipe.png";
+	
+	public final static int MAX_SCORE = 17000;
+	public final static int MAX_PIPES = 50;
 }

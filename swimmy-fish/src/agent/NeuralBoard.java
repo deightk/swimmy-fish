@@ -38,7 +38,7 @@ public class NeuralBoard extends Board
 		
 		orgs = neatPop.getOrganisms();
 		generation = 0;
-		gameSpeed = 5;
+		gameSpeed = 6;
 		
 		loadFromFile();
 		initialize();
@@ -144,9 +144,14 @@ public class NeuralBoard extends Board
 			
 			((Organism)orgs.get(i)).setFitness(score);
 			
-			if (score > 2500)
+			if (score > Config.MAX_SCORE)
 			{
 				((Organism)orgs.get(i)).setWinner(true);
+			}
+			
+			if (score < -1000)
+			{
+				((Organism)orgs.get(i)).setEliminate(true);
 			}
 		}
 		

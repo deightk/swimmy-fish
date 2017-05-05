@@ -12,10 +12,10 @@ public class ManualBoard extends Board
 	public ManualBoard()
 	{
 		super();
-		initializeControls();
+		initializeManualControls();
 	}
 	
-	private void initializeControls()
+	private void initializeManualControls()
 	{
 		//swimming
 		getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "swimButton");
@@ -27,12 +27,6 @@ public class ManualBoard extends Board
 		getActionMap().put("diveButton", new DiveAction());
 		getInputMap().put(KeyStroke.getKeyStroke("released DOWN"), "diveRelease");
 		getActionMap().put("diveRelease", new NeutralAction());
-		//reset
-		getInputMap().put(KeyStroke.getKeyStroke("R"), "resetButton");
-		getActionMap().put("resetButton", new ResetAction());
-		//pause
-		getInputMap().put(KeyStroke.getKeyStroke("P"), "pauseButton");
-		getActionMap().put("pauseButton", new PauseAction());
 	}
 	
 	protected void populate()
@@ -75,15 +69,6 @@ public class ManualBoard extends Board
 			{
 				f.dive();
 			}
-		}
-	}
-	
-	protected class ResetAction extends AbstractAction
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			timer.cancel();
-			newGame();
 		}
 	}
 }
